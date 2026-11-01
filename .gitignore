@@ -1,0 +1,26 @@
+# SSH private keys: never commit these
+*.pem
+*.key
+id_*
+!*.pub
+ansible_lab
+
+# Ansible
+*.retry
+.vault_pass
+vault_pass.txt
+.ansible/
+
+# Python (if you use a virtual env for Ansible)
+venv/
+.venv/
+__pycache__/
+
+# Environment and secrets files
+.env
+
+# OS and editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
