@@ -1,6 +1,10 @@
 pipeline {
   agent any
-
+  
+  triggers {
+    pollSCM('H/2 * * * *')
+  }
+  
   environment {
     INV = 'inventories/jenkins.ini'
   }
