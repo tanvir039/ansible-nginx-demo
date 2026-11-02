@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How Ansible Works | Deployed with Ansible</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #1e293b;
+      --panel-2: #273449;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #ee3e3e;
+      --accent-2: #38bdf8;
+      --ok: #4ade80;
+      --warn: #facc15;
+      --border: #334155;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    header {
+      padding: 56px 24px 40px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #1e293b 0%, var(--bg) 100%);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border: 1px solid var(--ok);
+      border-radius: 999px;
+      color: var(--ok);
+      font-size: 0.85rem;
+      font-family: var(--mono);
+      margin-bottom: 16px;
+    }
+    h1 { margin: 0 0 8px; font-size: 2.4rem; }
+    h1 span { color: var(--accent); }
+    header p { margin: 0; color: var(--muted); font-size: 1.1rem; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 24px 64px; }
+    section { margin-bottom: 48px; }
+    h2 {
+      font-size: 1.5rem;
+      margin: 0 0 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--accent);
+      display: inline-block;
+    }
+    p { margin: 0 0 12px; }
+    code {
+      font-family: var(--mono);
+      background: var(--panel-2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.9em;
+      color: var(--accent-2);
+    }
+    pre {
+      font-family: var(--mono);
+      background: #020617;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    pre .k { color: var(--accent-2); }
+    pre .c { color: var(--muted); }
+    pre .s { color: var(--ok); }
+
+    /* Architecture diagram */
+    .arch {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 16px;
+      align-items: center;
+      margin-top: 16px;
+    }
+    .box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .box h3 { margin: 0 0 8px; font-size: 1.1rem; }
+    .box ul { margin: 0; padding-left: 18px; color: var(--muted); }
+    .box.control { border-color: var(--accent); }
+    .box.target { border-color: var(--accent-2); }
+    .arrow {
+      text-align: center;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.85rem;
+    }
+    .arrow .line { font-size: 1.6rem; color: var(--text); }
+
+    /* Concept cards */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .card h3 { margin: 0 0 6px; font-size: 1.05rem; color: var(--accent-2); }
+    .card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+    /* Steps */
+    ol.steps { counter-reset: step; list-style: none; padding: 0; margin: 0; }
+    ol.steps li {
+      counter-increment: step;
+      position: relative;
+      padding: 12px 16px 12px 56px;
+      margin-bottom: 10px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    ol.steps li::before {
+      content: counter(step);
+      position: absolute;
+      left: 14px;
+      top: 12px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+    }
+
+    /* Status table */
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 600; font-size: 0.9rem; }
+    .st { font-family: var(--mono); font-weight: 700; }
+    .st.ok { color: var(--ok); }
+    .st.changed { color: var(--warn); }
+    .st.failed { color: var(--accent); }
+
+    .callout {
+      background: var(--panel);
+      border-left: 4px solid var(--ok);
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin-top: 16px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 700px) {
+      .arch { grid-template-columns: 1fr; }
+      .arrow .line { transform: rotate(90deg); display: inline-block; }
+      h1 { font-size: 1.9rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="badge">&#10003; Deployed with Ansible</div>
+    <h1>How <span>Ansible</span> Works</h1>
+    <p>This page was installed on this server automatically by an Ansible playbook. Here is how.</p>
+  </header>
+
+  <main>
+
+    <section>
+      <h2>What is Ansible?</h2>
+      <p>
+        Ansible is an open-source automation tool from Red Hat. You describe how your servers
+        <em>should</em> look in simple YAML files, and Ansible makes them that way: installing
+        packages, copying files, configuring and starting services.
+      </p>
+      <p>
+        Instead of logging in to every server and typing commands by hand, you write the steps once,
+        keep them in Git, and run them on one server or hundreds. Every server ends up configured the
+        same way, every time.
+      </p>
+    </section>
+
+    <section>
+      <h2>How it connects</h2>
+      <p>
+        Ansible runs on a <strong>control node</strong> and pushes changes over <strong>SSH</strong>
+        to the <strong>managed nodes</strong> it configures. Nothing needs to be installed on the
+        managed nodes apart from SSH and Python: Ansible is <strong>agentless</strong>.
+      </p>
+      <div class="arch">
+        <div class="box control">
+          <h3>Control node</h3>
+          <ul>
+            <li>Ansible installed</li>
+            <li>Inventory: which servers</li>
+            <li>Playbook: what to do</li>
+          </ul>
+        </div>
+        <div class="arrow">
+          <div>push over SSH</div>
+          <div class="line">&#10230;</div>
+          <div>results back as JSON</div>
+        </div>
+        <div class="box target">
+          <h3>Managed node (this server)</h3>
+          <ul>
+            <li>SSH server</li>
+            <li>Python 3</li>
+            <li>No Ansible agent</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>The key building blocks</h2>
+      <div class="cards">
+        <div class="card">
+          <h3>Inventory</h3>
+          <p>A list of the servers Ansible manages, organised into groups such as <code>web</code> or <code>db</code>.</p>
+        </div>
+        <div class="card">
+          <h3>Module</h3>
+          <p>A small unit of work, such as <code>apt</code> to install a package or <code>copy</code> to send a file.</p>
+        </div>
+        <div class="card">
+          <h3>Task</h3>
+          <p>One step that calls a module with settings, for example "install nginx".</p>
+        </div>
+        <div class="card">
+          <h3>Playbook</h3>
+          <p>A YAML file listing tasks to run against a group of hosts, in order.</p>
+        </div>
+        <div class="card">
+          <h3>Role</h3>
+          <p>A reusable bundle of tasks, templates and variables that teams can share.</p>
+        </div>
+        <div class="card">
+          <h3>Idempotency</h3>
+          <p>Running the same playbook again changes nothing if the server is already correct.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this page got here</h2>
+      <p>This server started as a bare Ubuntu container. A playbook with three tasks did the rest:</p>
+<pre><span class="c"># site.yml</span>
+- <span class="k">name:</span> Configure web server
+  <span class="k">hosts:</span> web
+  <span class="k">become:</span> <span class="s">true</span>
+
+  <span class="k">tasks:</span>
+    - <span class="k">name:</span> Install nginx
+      <span class="k">ansible.builtin.apt:</span>
+        <span class="k">name:</span> nginx
+        <span class="k">state:</span> present
+
+    - <span class="k">name:</span> Copy custom homepage
+      <span class="k">ansible.builtin.copy:</span>
+        <span class="k">src:</span> files/index.html
+        <span class="k">dest:</span> /var/www/html/index.html
+
+    - <span class="k">name:</span> Start nginx
+      <span class="k">ansible.builtin.service:</span>
+        <span class="k">name:</span> nginx
+        <span class="k">state:</span> started</pre>
+    </section>
+
+    <section>
+      <h2>What happens when you run a playbook</h2>
+      <ol class="steps">
+        <li><strong>Read the inventory</strong> to find which servers are in the target group.</li>
+        <li><strong>Connect over SSH</strong> to each server with the configured user and key.</li>
+        <li><strong>Gather facts</strong> about each server: operating system, IP addresses, memory.</li>
+        <li><strong>Run each task in order</strong>: copy the module over, run it with Python, get the result back, clean up.</li>
+        <li><strong>Print the PLAY RECAP</strong> summarising what happened on every server.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Reading the results</h2>
+      <table>
+        <thead>
+          <tr><th>Status</th><th>Meaning</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="st ok">ok</td><td>Already correct. Nothing needed changing.</td></tr>
+          <tr><td class="st changed">changed</td><td>Ansible made a change to reach the desired state.</td></tr>
+          <tr><td class="st failed">failed</td><td>The task hit an error, so Ansible stops on that server.</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">
+        <strong>Idempotency in action:</strong> the first run of this playbook reports <code>changed</code>
+        for each task. Run it again and it reports <code>changed=0</code>, because nginx is already installed,
+        this page is already in place and the service is already running.
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    Built by Tanvir &middot; Ansible &middot; Docker &middot; nginx
+  </footer>
+
+</body>
+</html>
