@@ -4,7 +4,7 @@ A Jenkins pipeline that uses **Ansible** to configure a server from scratch: it 
 
 The whole lab runs locally in **Docker**. An Ubuntu container acts as the target server, and Jenkins runs in a second container on the same network.
 
-![Jenkins pipeline stage view](docs/screenshots/pipeline-stages.png)
+<!-- ![Jenkins pipeline stage view](docs/screenshots/pipeline-stages.png) -->
 
 ---
 
@@ -55,7 +55,7 @@ flowchart LR
 
 The pipeline is **fail-fast**: if any stage fails, the later stages are skipped and nothing is deployed.
 
-![Build started automatically by an SCM change](docs/screenshots/scm-trigger.png)
+<!-- ![Build started automatically by an SCM change](docs/screenshots/scm-trigger.png) -->
 
 ---
 
@@ -89,7 +89,7 @@ The pipeline is **fail-fast**: if any stage fails, the later stages are skipped 
 
 The first run reports `changed` for each task. A second run reports `changed=0`, because the server is already in the desired state. Running the playbook again is always safe.
 
-![Second run showing changed=0](docs/screenshots/idempotent-recap.png)
+<!-- ![Second run showing changed=0](docs/screenshots/idempotent-recap.png) -->
 
 ---
 
