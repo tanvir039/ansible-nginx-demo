@@ -163,6 +163,26 @@
       margin-top: 16px;
     }
 
+    .author {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .links { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+    .btn {
+      display: inline-block;
+      padding: 8px 18px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .btn:hover { opacity: 0.85; }
+    footer a { color: var(--accent-2); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
     footer {
       text-align: center;
       padding: 24px;
@@ -319,10 +339,29 @@
       </div>
     </section>
 
+    <section>
+      <h2>About this project</h2>
+      <div class="author">
+        <p>
+          This project was created by <strong>Tanvir</strong>, an Imperial College London MEng Civil
+          Engineering graduate building a career in DevOps. It shows the full flow of configuration
+          management: a Docker container standing in for a server, SSH key authentication, an inventory,
+          and an idempotent Ansible playbook that installs nginx, deploys this page and starts the service.
+        </p>
+        <div class="links">
+          <a class="btn" href="https://www.linkedin.com/in/YOUR-LINKEDIN" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a class="btn" href="https://github.com/YOUR-GITHUB" target="_blank" rel="noopener noreferrer">GitHub portfolio</a>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <footer>
-    Built by Tanvir &middot; Ansible &middot; Docker &middot; nginx
+    Created by Tanvir &middot; Ansible &middot; Docker &middot; nginx<br>
+    <a href="https://www.linkedin.com/in/tanvir-ahmed7" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+    &middot;
+    <a href="https://github.com/tanvir039" target="_blank" rel="noopener noreferrer">GitHub</a>
   </footer>
 
 </body>
