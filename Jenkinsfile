@@ -8,14 +8,14 @@ pipeline {
   stages {
     stage('Syntax check') {
       steps {
-        sh 'ansible-playbook -i $INV website.yml --syntax-check'
+        sh 'ansible-playbook -i $INV site.yml --syntax-check'
       }
     }
 
     stage('Dry run') {
       steps {
         withCredentials([sshUserPrivateKey(credentialsId: 'ansible-lab-key', keyFileVariable: 'SSH_KEY')]) {
-          sh 'ansible-playbook -i $INV website.yml --private-key "$SSH_KEY" --check --diff'
+          sh 'ansible-playbook -i $INV site.yml --private-key "$SSH_KEY" --check --diff'
         }
       }
     }
@@ -29,7 +29,7 @@ pipeline {
     stage('Deploy') {
       steps {
         withCredentials([sshUserPrivateKey(credentialsId: 'ansible-lab-key', keyFileVariable: 'SSH_KEY')]) {
-          sh 'ansible-playbook -i $INV website.yml --private-key "$SSH_KEY"'
+          sh 'ansible-playbook -i $INV site.yml --private-key "$SSH_KEY"'
         }
       }
     }
