@@ -1,0 +1,21 @@
+---
+- name: Configure web server
+  hosts: web
+  become: true
+
+  tasks:
+    - name: Install Nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: true
+
+    - name: Start Nginx service
+      ansible.builtin.service:
+        name: nginx
+        state: started
+
+    - name: Copy index.html to web server
+      ansible.builtin.copy:
+        src: index.html
+        dest: /var/www/html/index.html
